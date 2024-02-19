@@ -69,7 +69,7 @@ app.get('/api/company/:id', (req, res) => {
     if (company) {
       res.json(company); 
   } else {
-      res.status(404).json({ msg: `no company found with ID: ${companyID}`});
+      res.status(404).json({ msg: `no company found with ID: ${companyId}`});
   }
   })
   .catch((err) => {
