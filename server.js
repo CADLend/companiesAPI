@@ -1,3 +1,14 @@
+1.	/*********************************************************************************
+*  WEB422 – Assignment 1
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  
+*  No part of this assignment has been copied manually or electronically from any other source
+*  (including web sites) or distributed to other students.
+* 
+*  Name: Jihun Yu Student ID: 107890220 Date: 2024-02-19
+*  Cyclic Link: https://strange-goat-capris.cyclic.app
+*
+********************************************************************************/ 
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -14,7 +25,7 @@ app.use(cors());
 
 app.get('/', (req, res) => {
   console.log("\'/\' GET handler");
-  res.json({msg: "Default loader"});
+  res.json({msg: "Loaded \'/\' page"});
 })
 
 app.post('/api/companies', (req, res) => {
@@ -55,7 +66,11 @@ app.get('/api/company/:id', (req, res) => {
   const companyId = req.params.id;
   db.getCompanyById(companyId)
   .then((company) => {
-    res.json(company);
+    if (company) {
+      res.json(company); 
+  } else {
+      res.status(404).json({ msg: `no company found with ID: ${companyID}`});
+  }
   })
   .catch((err) => {
     res.status(500).json({ error: err.message})
