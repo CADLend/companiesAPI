@@ -20,6 +20,12 @@ app.get('/', (req, res) => {
 
 
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Server listening on: ${HTTP_PORT}`);
+db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
+  app.listen(HTTP_PORT, () => {
+    console.log(`Server listening on: ${HTTP_PORT}`);
+    console.log(db)
+  });
+}).catch((err) => {
+  console.log("initialize() failed!");
+  console.log(err);
 })
