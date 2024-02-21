@@ -22,11 +22,8 @@ const db = new CompaniesDB();
 // JSON parser
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'solution')));
 
-app.get('/', (req, res) => {
-  console.log("\'/\' GET handler");
-  res.json({msg: "Loaded \'/\' page"});
-})
 
 app.post('/api/companies', (req, res) => {
   const newCompany = req.body;
