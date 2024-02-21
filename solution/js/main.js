@@ -75,28 +75,45 @@ function companyObjectToTableRowTemplate(companies) {
     row.innerHTML = `
       <td class="name">${company.name}</td>
       <td class="description">${company.description || '--'}</td>
-      <td>${company.number_of_employees || '--'}</td>
-      <td>${company.offices && company.offices.length > 0 ? `${company.offices[0].city}, ${company.offices[0].country}` : '--'}</td>
-      <td>${company.category_code || '--'}</td>
-      <td>${company.founded_year ? `${company.founded_month}/${company.founded_day}/${company.founded_year}` : '--'}</td>
-      <td><a href="${company.homepage_url || '#'}" target="_blank">${company.homepage_url || 'No Website'}</a></td>
-      <td>${tags}</td>
+      <td class="employees">${company.number_of_employees || '--'}</td>
+      <td class="offices">${company.offices && company.offices.length > 0 ? `${company.offices[0].city}, ${company.offices[0].country}` : '--'}</td>
+      <td class="category">${company.category_code || '--'}</td>
+      <td class="founded">${company.founded_year ? `${company.founded_month}/${company.founded_day}/${company.founded_year}` : '--'}</td>
+      <td class="homepage"><a href="${company.homepage_url || '#'}" target="_blank">${company.homepage_url || 'No Website'}</a></td>
+      <td class="tags">${tags}</td>
     `;
-    row.addEventListener('click', loadModal);
+    row.addEventListener('click', (data) => {
+      {
+        try {
+          console.log(company._id);
+          console.log(data);
+          myModalObj = document.getElementById('detailsModal');
+          const myModal = new bootstrap.Modal(myModalObj);
+          console.log(myModalObj)
+          myModalObj.querySelector('.modal-title').innerHTML = 
+          `<strong>Category:</strong>${data.currentTarget.querySelector('.name').innerText}<br /><br />`
+      
+          console.log(data.currentTarget.querySelector('.name').innerText);
+          console.log(data.currentTarget.querySelector('.description').innerText);
+          console.log(data.currentTarget.querySelector('.employees').innerText);
+          console.log(data.currentTarget.querySelector('.offices').innerText);
+          console.log(data.currentTarget.querySelector('.category').innerText);
+          console.log(data.currentTarget.querySelector('.founded').innerText);
+          console.log(data.currentTarget.querySelector('.homepage').innerText);
+          console.log(data.currentTarget.querySelector('.tags').innerText);
+          myModal.show();
+        }
+        catch(err) {
+          console.log(err);
+        }
+      }
+    });
     tableBody.appendChild(row);
 
-    function loadModal(e) {
-      try {
-        console.log(e.currentTarget.querySelector('.name').innerText);
-        const myModal = new bootstrap.Modal(document.getElementById('detailsModal'))
-        myModal.show();
-      }
-      catch(err) {
-        console.log(err);
-      }
-    }
   });
 }
+
+// Populates the modal based on passed 'company' row
 
 async function searchByName() {
   try {
@@ -117,6 +134,4 @@ async function searchByName() {
   }
 }
 
-
-console.log("Inside main.js")
-loadCompanyData();
+document.addEventListener('DOMContentLoaded', loadCompanyData);
