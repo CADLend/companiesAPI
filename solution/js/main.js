@@ -4,91 +4,119 @@
 *  No part of this assignment has been copied manually or electronically from any other source
 *  (including web sites) or distributed to other students.
 * 
-*  Name: Jihun Yu Student ID: 107890220 Date: Feb-07-2024
+*  Name: Jihun Yu   Student ID: 107890220 Date: Feb-07-2024
 *  Cyclic Link: https://strange-goat-capris.cyclic.app/
 *
 ********************************************************************************/ 
 // assign appropriate base URL for both dev and deployed version
 const apiUrlBase = window.location.origin.includes('localhost')
-? 'http://localhost:3000'
+? 'http://localhost:3000/'
 : 'https://strange-goat-capris.cyclic.app/';
 console.log(`apiurlbase: ${apiUrlBase}`);
 
 let page = 1;
 const perPage = 8;
 
+async function testBtn() {
+    try{
+      const response = await fetch(`${apiUrlBase}api/company/65d34af496c1307637d52209`);
+
+    if(!response.ok){
+      throw new Error("fetch went wrong!");
+    }
+    const data = await response.json();
+
+    console.log(data._id);
+
+    document.getElementById('testP').textContent = data.name;
+  }
+  catch(err){
+    console.log(err);
+  }
+}
 
 
+async function loadCompanyData(name = null) {
+  const paginationClass = document.querySelector('.pagination');
+  let apiUrl = `${apiUrlBase}api/companies?page=${page}&perPage=${perPage}`
 
+  console.log("loading...");
 
-// async function loadCompanyData(name = null) {
-//   const paginationClass = document.querySelector('.pagination');
-//   let apiUrl = `https://strange-goat-capris.cyclic.app/api/companies?page=${page}&perPage=${perPage}`
+  if(name) {
+    apiUrl += `&name=${encodeURIComponent(name)}`;
+    paginationClass.classList.add("d-none");
+  } else {
+    paginationClass.classList.remove("d-none");
+  }
 
-//   console.log("loading...");
+  try {
+    const response = await fetch(apiUrl);
 
-//   if(name) {
-//     apiUrl += `&name=${encodeURIComponent(name)}`;
-//     paginationClass.classList.add("d-none");
-//   } else {
-//     paginationClass.classList.remove("d-none");
-//   }
+    if(!response.ok) {
+      throw new Error("Fetch failed!");
+    }
 
-//   try {
-//     const response = await fetch(apiUrl);
+    const companies = await response.json(); 
+    companyObjectToTableRowTemplate (companies)   
+  } catch (err) {
+    console.error(`Could not fetch: ${err}`);
+  }
+}
 
-//     if(!response.ok) {
-//       throw new Error("Fetch failed!");
-//     }
+function companyObjectToTableRowTemplate(companies) {
+  console.log("Updating...");
+  const tableBody = document.querySelector('#companiesTable tbody');
+  tableBody.innerHTML = '';
 
-//     const companies = await response.json(); 
-//     companyObjectToTableRowTemplate (companies)   
-//   } catch (err) {
-//     console.error(`Could not fetch: ${err}`);
-//   }
-// }
+  companies.forEach(company => {
+    const tags = company.tag_list ? company.tag_list.split(',').map(tag => tag.trim()).filter((tag, index) => index < 2).join(', ') : '--';
 
-// function companyObjectToTableRowTemplate(companies) {
-//   console.log("Updating...");
-//   const tableBody = document.querySelector('#companiesTable tbody');
-//   tableBody.innerHTML = '';
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="name">${company.name}</td>
+      <td class="description">${company.description || '--'}</td>
+      <td>${company.number_of_employees || '--'}</td>
+      <td>${company.offices && company.offices.length > 0 ? `${company.offices[0].city}, ${company.offices[0].country}` : '--'}</td>
+      <td>${company.category_code || '--'}</td>
+      <td>${company.founded_year ? `${company.founded_month}/${company.founded_day}/${company.founded_year}` : '--'}</td>
+      <td><a href="${company.homepage_url || '#'}" target="_blank">${company.homepage_url || 'No Website'}</a></td>
+      <td>${tags}</td>
+    `;
+    row.addEventListener('click', loadModal);
+    tableBody.appendChild(row);
 
-//   companies.forEach(company => {
-//     const tags = company.tag_list ? company.tag_list.split(',').map(tag => tag.trim()).filter((tag, index) => index < 2).join(', ') : '--';
+    function loadModal(e) {
+      try {
+        console.log(e.currentTarget.querySelector('.name').innerText);
+        const myModal = new bootstrap.Modal(document.getElementById('detailsModal'))
+        myModal.show();
+      }
+      catch(err) {
+        console.log(err);
+      }
+    }
+  });
+}
 
-//     const row = document.createElement('tr');
-//     row.innerHTML = `
-//       <td>${company.name}</td>
-//       <td>${company.description || '--'}</td>
-//       <td>${company.number_of_employees || '--'}</td>
-//       <td>${company.offices && company.offices.length > 0 ? `${company.offices[0].city}, ${company.offices[0].country}` : '--'}</td>
-//       <td>${company.category_code || '--'}</td>
-//       <td>${company.founded_year ? `${company.founded_month}/${company.founded_day}/${company.founded_year}` : '--'}</td>
-//       <td><a href="${company.homepage_url || '#'}" target="_blank">${company.homepage_url || 'No Website'}</a></td>
-//       <td>${tags}</td>
-//     `;
-//     tableBody.appendChild(row);
-//   });
-// }
-
-// async function searchByName() {
-//   try {
-//     const companyName = document.getElementById('searchInput').value.toLowerCase();
+async function searchByName() {
+  try {
+    const companyName = document.getElementById('searchInput').value.toLowerCase();
     
-//     console.log(companyName); 
-//     const response = await fetch(`https://energetic-sundress-deer.cyclic.app/api/companies?page=${page}&perPage=${perPage}&name${companyName}`)
+    console.log(companyName); 
+    const response = await fetch(`https://energetic-sundress-deer.cyclic.app/api/companies?page=${page}&perPage=${perPage}&name${companyName}`)
     
-//     if(response.ok) {
-//       throw new Error('could not fetch');
-//     }else {
-//       const data = await response.json();
-//       companyObjectToTableRowTemplate(data);      
-//     }
+    if(response.ok) {
+      throw new Error('could not fetch');
+    }else {
+      const data = await response.json();
+      companyObjectToTableRowTemplate(data);      
+    }
 
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-// console.log("Inside main.js")
-// loadCompanyData();
+
+console.log("Inside main.js")
+loadCompanyData();
