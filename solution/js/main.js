@@ -5,9 +5,14 @@
 *  (including web sites) or distributed to other students.
 * 
 *  Name: Jihun Yu Student ID: 107890220 Date: Feb-07-2024
-*  Cyclic Link: https://energetic-sundress-deer.cyclic.app/
+*  Cyclic Link: https://strange-goat-capris.cyclic.app/
 *
 ********************************************************************************/ 
+// assign appropriate base URL for both dev and deployed version
+const apiUrlBase = window.location.origin.includes('localhost')
+? 'http://localhost:3000'
+: 'https://strange-goat-capris.cyclic.app/';
+console.log(`apiurlbase: ${apiUrlBase}`);
 
 let page = 1;
 const perPage = 8;
@@ -18,7 +23,7 @@ const perPage = 8;
 
 // async function loadCompanyData(name = null) {
 //   const paginationClass = document.querySelector('.pagination');
-//   let apiUrl = `https://energetic-sundress-deer.cyclic.app/api/companies?page=${page}&perPage=${perPage}`
+//   let apiUrl = `https://strange-goat-capris.cyclic.app/api/companies?page=${page}&perPage=${perPage}`
 
 //   console.log("loading...");
 
