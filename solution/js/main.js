@@ -40,8 +40,6 @@ async function loadCompanyData(name = null) {
   const paginationClass = document.querySelector('.pagination');
   let apiUrl = `${apiUrlBase}api/companies?page=${page}&perPage=${perPage}`
 
-  console.log("loading...");
-
   if(name) {
     apiUrl += `&name=${encodeURIComponent(name)}`;
     paginationClass.classList.add("d-none");
@@ -85,22 +83,25 @@ function companyObjectToTableRowTemplate(companies) {
     row.addEventListener('click', (data) => {
       {
         try {
-          console.log(company._id);
-          console.log(data);
+          const productsList = company.products && company.products.length > 0
+              ? company.products.map(product => `• ${product.name}`).join('<br />')
+              : 'N/A';
           myModalObj = document.getElementById('detailsModal');
           const myModal = new bootstrap.Modal(myModalObj);
-          console.log(myModalObj)
-          myModalObj.querySelector('.modal-title').innerHTML = 
-          `<strong>Category:</strong>${data.currentTarget.querySelector('.name').innerText}<br /><br />`
-      
-          console.log(data.currentTarget.querySelector('.name').innerText);
-          console.log(data.currentTarget.querySelector('.description').innerText);
-          console.log(data.currentTarget.querySelector('.employees').innerText);
-          console.log(data.currentTarget.querySelector('.offices').innerText);
-          console.log(data.currentTarget.querySelector('.category').innerText);
-          console.log(data.currentTarget.querySelector('.founded').innerText);
-          console.log(data.currentTarget.querySelector('.homepage').innerText);
-          console.log(data.currentTarget.querySelector('.tags').innerText);
+
+          myModalObj.querySelector('.modal-title').innerText = data.currentTarget.querySelector('.name').innerText;
+          myModalObj.querySelector('.modal-body').innerHTML = `
+          <strong>Category: </strong>${data.currentTarget.querySelector('.category').innerText}<br /><br />
+          <strong>Description: </strong>${data.currentTarget.querySelector('.description').innerText}<br /><br />
+          <strong>Overview: </strong> ${company.overview}
+          <strong>Tag List: </strong> ${data.currentTarget.querySelector('.tags').innerText}
+          <strong>Founded: </strong>Mon Dec 10 2012<br /><br />
+          <strong>CEOs: </strong> ${company.relationships[0] ? company.relationships[0].person.first_name + ' ' + company.relationships[0].person.last_name + ' (' + company.relationships[0].title + ')' : 'N/A'}<br /><br />
+          <strong>Products:</strong> 
+          ${productsList}<br />
+          <strong>Number of Employees:</strong>${data.currentTarget.querySelector('.employees').innerText}<br /><br />
+          <strong>Website:</strong>${data.currentTarget.querySelector('.homepage').innerText}<br /><br />
+          `
           myModal.show();
         }
         catch(err) {
@@ -113,19 +114,20 @@ function companyObjectToTableRowTemplate(companies) {
   });
 }
 
-// Populates the modal based on passed 'company' row
 
+// Populates the modal based on passed 'company' row
 async function searchByName() {
   try {
     const companyName = document.getElementById('searchInput').value.toLowerCase();
     
     console.log(companyName); 
-    const response = await fetch(`https://energetic-sundress-deer.cyclic.app/api/companies?page=${page}&perPage=${perPage}&name${companyName}`)
+    const response = await fetch(`${apiUrlBase}api/companies?page=${page}&perPage=${perPage}&name${companyName}`)
     
-    if(response.ok) {
+    if(!response.ok) {
       throw new Error('could not fetch');
     }else {
       const data = await response.json();
+      console.log(data.name);
       companyObjectToTableRowTemplate(data);      
     }
 
