@@ -61,10 +61,12 @@ async function loadCompanyData(name = null) {
   }
 }
 
-function companyObjectToTableRowTemplate(companies) {
+function companyObjectToTableRowTemplate(companies=null) {
   console.log("Updating...");
   const tableBody = document.querySelector('#companiesTable tbody');
   tableBody.innerHTML = '';
+
+  if(!companies) return;
 
   companies.forEach(company => {
     const tags = company.tag_list ? company.tag_list.split(',').map(tag => tag.trim()).filter((tag, index) => index < 2).join(', ') : '--';
@@ -91,16 +93,16 @@ function companyObjectToTableRowTemplate(companies) {
 
           myModalObj.querySelector('.modal-title').innerText = data.currentTarget.querySelector('.name').innerText;
           myModalObj.querySelector('.modal-body').innerHTML = `
-          <strong>Category: </strong>${data.currentTarget.querySelector('.category').innerText}<br /><br />
-          <strong>Description: </strong>${data.currentTarget.querySelector('.description').innerText}<br /><br />
-          <strong>Overview: </strong> ${company.overview}
-          <strong>Tag List: </strong> ${data.currentTarget.querySelector('.tags').innerText}
-          <strong>Founded: </strong>Mon Dec 10 2012<br /><br />
-          <strong>CEOs: </strong> ${company.relationships[0] ? company.relationships[0].person.first_name + ' ' + company.relationships[0].person.last_name + ' (' + company.relationships[0].title + ')' : 'N/A'}<br /><br />
+          <strong>Category: </strong>${data.currentTarget.querySelector('.category').innerText}<br />
+          <strong>Description: </strong>${data.currentTarget.querySelector('.description').innerText}<br />
+          <strong>Overview: </strong> ${company.overview}<br />
+          <strong>Tag List: </strong> ${data.currentTarget.querySelector('.tags').innerText}<br />
+          <strong>Founded: </strong>Mon Dec 10 2012<br />
+          <strong>CEOs: </strong> ${company.relationships[0] ? company.relationships[0].person.first_name + ' ' + company.relationships[0].person.last_name + ' (' + company.relationships[0].title + ')' : 'N/A'}<br />
           <strong>Products:</strong> 
           ${productsList}<br />
-          <strong>Number of Employees:</strong>${data.currentTarget.querySelector('.employees').innerText}<br /><br />
-          <strong>Website:</strong>${data.currentTarget.querySelector('.homepage').innerText}<br /><br />
+          <strong>Number of Employees:</strong>${data.currentTarget.querySelector('.employees').innerText}<br />
+          <strong>Website:</strong>${data.currentTarget.querySelector('.homepage').innerText}<br />
           `
           myModal.show();
         }
@@ -118,20 +120,24 @@ function companyObjectToTableRowTemplate(companies) {
 // Populates the modal based on passed 'company' row
 async function searchByName() {
   try {
-    const companyName = document.getElementById('searchInput').value.toLowerCase();
-    
-    console.log(companyName); 
-    const response = await fetch(`${apiUrlBase}api/companies?page=${page}&perPage=${perPage}&name${companyName}`)
+    const companyName = encodeURIComponent(document.getElementById('searchInput').value.toLowerCase());
+    const newURL = `${apiUrlBase}api/companies?page=${page}&perPage=${perPage}&name=${companyName}`
+    console.log(`company name: ${companyName}`); 
+    console.log(`newURL: ${newURL}`)
+
+    let response = await fetch(newURL);
+    console.log(response);
     
     if(!response.ok) {
       throw new Error('could not fetch');
-    }else {
-      const data = await response.json();
-      console.log(data.name);
-      companyObjectToTableRowTemplate(data);      
     }
-
+    
+    const data = await response.json();
+    console.log(data.name);
+    companyObjectToTableRowTemplate(data);      
+    
   } catch (err) {
+    console.log("search err");
     console.error(err);
   }
 }

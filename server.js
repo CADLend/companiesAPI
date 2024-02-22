@@ -42,6 +42,9 @@ app.get('/api/companies', (req, res) => {
   const perPage = parseInt(req.query.perPage);
   const name = req.query.name;
 
+  console.log('GET companies');
+  console.log(`name: ${name}`);
+
   if(isNaN(page) || isNaN(perPage)) {
     return res.status(400).json({
       page: page,
@@ -49,15 +52,20 @@ app.get('/api/companies', (req, res) => {
       error: "Page and perPage query parameters must be valid numbers"
     });
   }
+  console.log('Middle');
 
   db.getAllCompanies(page, perPage, name)
     .then((companies) => {
+      console.log(companies[0].name);
+      console.log(companies[1].name);
+      console.log(companies.length);
       res.json(companies);
     })
     .catch((err) => {
       res.status(500).json({ error: err.message})
     });
-})
+    console.log('End');
+  })
 
 app.get('/api/company/:id', (req, res) => {
   const companyId = req.params.id;
